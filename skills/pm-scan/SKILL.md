@@ -1,6 +1,6 @@
 ---
 name: pm-scan
-description: 扫描已有项目，识别项目类型（多维度，不强制三选一），产出项目概览文档与结构化类型判定（供 project-mastery 路由）。
+description: 当开始学习一个已有项目、需要扫描其目录结构/配置文件/入口点以识别项目类型、启动 project-mastery 学习管线时使用。
 ---
 
 # pm-scan — 项目扫描与多维度类型识别
@@ -41,7 +41,9 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
    - `CLAUDE.md` / `README.md` — 项目说明（快速获取上下文）
 4. **判定是否为 Monorepo**：顶层有 `lerna.json`、`pnpm-workspace.yaml`、`nx.json`、或 pom.xml 的 `<modules>` 多模块声明、或 `workspace` 字段的 package.json
 
-#### 第 2 层：入口点定位（必须执行）
+#### 第 2 层：入口点定位（按需执行）
+
+application / cli / web 服务类项目必须执行；library 或纯聚合模块若无明确入口点可标注"无单一入口"并跳过。
 
 根据第 1 层识别到的技术栈，定位入口点：
 
@@ -96,6 +98,7 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
 2. 收集匹配的证据（具体文件名、配置内容、依赖声明等）
 3. 所有匹配的类型都加入类型数组（多维度叠加）
 4. 若无任何匹配，标记为 `["other"]`
+5. **primaryType 选取规则**：从 types 数组中取置信度最高的类型作为 primaryType；若多个类型置信度并列，取最能代表项目本质的那个（如全栈项目取 `fullstack` 而非 `microservices`）
 
 ## 规模指标采集
 
@@ -122,7 +125,7 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
 ## 项目类型
 
 - **类型判定**：{type1}, {type2}, ...
-- **置信度**：{high/medium/low}（{0.0-1.0}）
+- **置信度**：{high/medium/low}（{具体数值，如 0.9}）
 - **判定依据**：见 `_meta/project-type.json` 中的 evidence 字段
 
 ## 目录结构概览
@@ -147,7 +150,7 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
 
 | 技术 | 版本 | 用途 | 证据位置 |
 |------|------|------|----------|
-| {tech} | {version} | {purpose} | {config file:line} |
+| {tech} | {version，如配置中可直接读到则填，不强制} | {purpose} | {config file} |
 ```
 
 ### _meta/project-type.json 模板
@@ -159,6 +162,7 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
   "types": ["fullstack", "microservices", "monorepo"],
   "primaryType": "fullstack",
   "confidence": 0.9,
+  "requiresHumanReview": false,
   "evidence": [
     {
       "type": "fullstack",
@@ -196,6 +200,12 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
 | high | 0.8 - 1.0 | 配置文件/依赖声明中有明确证据，几乎无歧义 |
 | medium | 0.5 - 0.79 | 有间接证据（如目录结构推断），但缺少配置文件直接声明 |
 | low | 0.0 - 0.49 | 证据不足，类型判定不确定，建议人工复核 |
+
+### 低置信度处理
+
+当整体置信度为 low（<0.5）时：
+- 在 `project-type.json` 中添加可选字段 `"requiresHumanReview": true`
+- 在概览文档的项目类型处标注"**建议人工复核**"
 
 ### 依据要求
 
