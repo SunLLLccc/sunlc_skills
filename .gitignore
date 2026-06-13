@@ -1,0 +1,13 @@
+# 测试靶子项目（不属于本工具集源码）
+/dsp/
+
+# 依赖
+**/node_modules/
+
+# 系统
+.DS_Store
+
+# 构建产物
+**/dist/
+**/build/
+**/target/
