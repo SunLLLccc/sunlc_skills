@@ -19,10 +19,20 @@ pm-techstack-generic 是 project-mastery 学习管线的**波次 2** 分析 skil
 
 - `PROJECT_ROOT`：目标项目的根目录绝对路径
 - `01-项目概览.md`：波次 1 pm-scan 的产出（作为上下文输入，提供项目类型、目录结构、入口点、顶层技术栈速览）
+- `.codebase/scan-result.json`：波次 1 pm-scan 的机器契约缓存（Step 0 优先读）
 
 ## 产出
 
 - `{PROJECT_ROOT}/docs/project-knowledge/02-技术栈与架构.md`
+
+## Step 0：优先读扫描缓存（必做）
+
+开始技术栈深挖前，先检查 `{PROJECT_ROOT}/.codebase/scan-result.json`：
+
+- **存在**：直接复用其 `classifications` 与 `technologies` 字段作为基础清单。本 skill 只做**深挖补充**——版本细节、自封装框架识别、模块依赖关系、用途细化——**不重做顶层技术栈识别**。在产出的 02 文档顶部注明"基础技术栈清单复用自 `.codebase/scan-result.json`（pm-scan 生成）"。
+- **不存在**：提示用户/编排器先跑 `pm-scan` 生成缓存；**不得自行重建一份 scan-result.json**（避免双份漂移）。若编排器坚持跳过，照常从零识别，并在 02 文档标注"未使用扫描缓存（.codebase/scan-result.json 缺失）"。
+
+读缓存是小模型下的关键省 context 手段——避免把整份代码库再喂一遍。
 
 ## 分析策略
 
@@ -195,6 +205,7 @@ pm-techstack-generic 是 project-mastery 学习管线的**波次 2** 分析 skil
 
 执行 pm-techstack-generic 时，按以下顺序完成：
 
+0. [ ] **Step 0**：检查 `.codebase/scan-result.json`——存在则复用其 classifications/technologies 基础清单（只深挖、不重做顶层识别），并在 02 文档注明复用来源；不存在则提示先跑 pm-scan
 1. [ ] 读取 `01-项目概览.md` 作为上下文输入
 2. [ ] 从包管理器/构建配置中清点所有开源框架（名称/版本/用途/配置位置）
 3. [ ] 执行自封装框架识别四步法：定位目录 → 找引用 → 验证特征 → 区分自封装
