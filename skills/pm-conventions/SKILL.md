@@ -192,7 +192,7 @@ pm-conventions 是 project-mastery 学习管线的**波次 2** 规范提取 skil
 ### 规范 {n}：{规范一句话标题}
 
 - **内容**：{规范的具体描述}
-- **证据**：{文件路径 + 关键代码片段/模式描述，如 `dsp-core/.../service/impl/InterfaceInfoServiceImpl.java: 继承 ServiceImpl<Mapper, Entity>`}
+- **证据**：{文件路径 + 关键代码片段/模式描述，如 `{模块}/service/impl/XxxServiceImpl.java: 实现 XxxService 接口，方法命名遵循 findXxxById/saveXxx 等约定`}
 - **置信度**：{高/中/低}（{理由，如"6 个服务模块模式一致"}）
 - **来源类型**：{显式文档/代码推断/混合}
 

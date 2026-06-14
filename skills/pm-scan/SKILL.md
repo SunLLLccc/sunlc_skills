@@ -75,7 +75,7 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 
 项目类型是一个**数组**，不是单选。一个项目可以同时是多个类型。
 
-例如：dsp 项目 = `["fullstack", "microservices", "monorepo"]`
+例如：一个同时含前端与后端、且后端拆分为多个独立可部署服务的多模块项目 = `["fullstack", "microservices", "monorepo"]`
 
 ### 类型清单
 
@@ -157,36 +157,28 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 
 ```json
 {
-  "projectName": "项目名称（从 package.json/pom.xml/README 获取）",
-  "projectRoot": "项目根目录的绝对路径",
-  "types": ["fullstack", "microservices", "monorepo"],
-  "primaryType": "fullstack",
+  "projectName": "{项目名称：从 package.json/pom.xml/README 等获取}",
+  "projectRoot": "{项目根目录的绝对路径}",
+  "types": ["{匹配的类型标识，可多个，多维度叠加}"],
+  "primaryType": "{置信度最高 / 最能代表项目本质的类型}",
   "confidence": 0.9,
   "requiresHumanReview": false,
   "evidence": [
     {
-      "type": "fullstack",
+      "type": "{type1}",
       "indicators": [
-        "dsp-admin-web/package.json: 存在 Vue 3 + Vite 前端依赖",
-        "dsp-parent/pom.xml: 存在 Spring Boot 后端多模块"
+        "{文件路径}: {支撑该类型判定的具体证据}",
+        "{文件路径}: {另一条证据}"
       ]
     },
     {
-      "type": "microservices",
+      "type": "{type2}",
       "indicators": [
-        "dsp-parent/pom.xml: 6个子模块，含独立服务模块 dsp-data-service, dsp-offline-service, dsp-admin-service",
-        "依赖 Dubbo 3.2.11 微服务框架"
-      ]
-    },
-    {
-      "type": "monorepo",
-      "indicators": [
-        "dsp-parent/pom.xml: <modules>声明 6 个子模块",
-        "顶层包含独立前端项目 dsp-admin-web"
+        "{文件路径}: {支撑该类型判定的证据}"
       ]
     }
   ],
-  "scannedAt": "ISO 8601 时间戳",
+  "scannedAt": "{ISO 8601 时间戳}",
   "scanVersion": "pm-scan v1"
 }
 ```
@@ -216,8 +208,8 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 - **格式**：`{文件路径}: {具体内容描述}`
 
 例如：
-- 好：`dsp-admin-web/package.json: dependencies 含 "vue": "^3.5.32", "element-plus": "^2.13.7"`
-- 差：`有 Vue 相关的依赖`
+- 好：`{模块路径}/package.json: dependencies 含 "vue": "^x.y.z"（写明具体文件路径与依赖名/版本）`
+- 差：`有 Vue 相关的依赖（未指出文件与具体依赖）`
 
 ## 执行检查清单
 
