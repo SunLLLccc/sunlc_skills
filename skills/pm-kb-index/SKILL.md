@@ -45,7 +45,7 @@ README 必须满足以下五条铁律，否则禁止定稿：
 | 生成时间（KB 起始扫描时间） | `_meta/project-type.json` 的 `scannedAt`（pm-scan 时间戳，代表 KB 生成的起始时刻）；若存在 `_meta/manifest.json` 的 `generatedAt` 则优先用后者 | 标注"未记录（_meta 无时间戳）"，**禁止编造当前时间** |
 | skill 版本 | `_meta/project-type.json` 的 `scanVersion`；`_meta/manifest.json` 的 `skillVersions`（若存在，合并各 skill 版本） | 标注"未记录" |
 | 项目类型判定 | `_meta/project-type.json` 的 `types` / `primaryType` / `confidence` | 标注"未记录" |
-| 源码版本/commit | `_meta/manifest.json` 的 `sourceCommit` / `sourceVersion`（若存在）；否则尝试 `git -C {PROJECT_ROOT} rev-parse --short HEAD`（若有 .git）；都无则 | 标注"未记录（无 git 仓库或 _meta 无 commit 字段）" |
+| 源码版本/commit | `_meta/manifest.json` 的 `sourceCommit` / `sourceVersion`（若存在）；否则尝试 `git -C {PROJECT_ROOT} rev-parse --short HEAD`（若有 .git） | 都无则标注"未记录（无 git 仓库或 _meta 无 commit 字段）" |
 | KB 文档清单与完成状态 | 实际 `ls` `{PROJECT_ROOT}/docs/project-knowledge/` 的结果，对照规划清单（01-06）标注已生成/未生成 | — |
 
 **关键规则**：`_meta/manifest.json` 是可选的——pm-scan 只产出 `project-type.json`，`manifest.json` 可能由后续 skill 或编排层补充。本 skill 不得因 `manifest.json` 不存在而报错或跳过元信息章节，必须从 `project-type.json` 读已有字段，其余显式标注"未生成/未记录"。
