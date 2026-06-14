@@ -73,7 +73,7 @@ project-mastery 是顶层编排 skill，不加它让模型"自由地学习一个
 
 - 路径：`/Users/sunlc/sunlc_work/sunlc_skills/dsp`（全栈多模块：前端 Vue + 后端 Java/Maven 多模块）
 - GREEN 验证用 baseline 靶子：
-  - **【学习】子流程**：清空 `dsp/docs/project-knowledge/` 后跑，预期自动判定走【学习】，按波次 1→2(并行)→3→4→收尾 顺序，最终产出完整 KB（README + 01-06 + _meta/{project-type.json, manifest.json}）。
+  - **【学习】子流程**：清空 `dsp/docs/project-knowledge/` 后跑，预期自动判定走【学习】，按波次 1→2(并行)→3→4→收尾 顺序，最终产出完整 KB（README + 01-06 + .codebase/scan-result.json + _meta/{manifest.json, progress.json}）。
   - dsp 是多模块全栈项目，波次 2 的 4 个分析 subagent 有真实工作量（不是空跑），能验证并行 dispatch 是否真在同一轮。
 
 ## Baseline 实际跑偏记录
@@ -129,3 +129,15 @@ Task 8 的 GREEN 全流程实跑（清空 KB 重跑）暴露了一个**未在原
 - 或调整波次 2 内部依赖：02（技术栈）串行先行，03/04/05 以 02 为上下文并行（减少独立估算的口径分歧）。
 
 **对 SKILL.md 的当前处置**：已在 project-mastery SKILL.md 波次 2 依赖说明中预警此风险（"并行 subagent 独立估算计数易不一致"），期 2 落地对账机制。
+
+## 增量 GREEN 规则（scan-result 路由 + progress.json 断点续跑，2026-06-14 加入）
+
+除原 GREEN 规则外，project-mastery【学习】子流程现在还必须：
+
+1. **波次 2 路由读 `.codebase/scan-result.json`** 的 `classifications`（取 `is_primary=true` 的 type），不再读已退役的 `_meta/project-type.json`。
+2. **全流程维护 `_meta/progress.json`**：每个 phase 跑完即更新 status（done/skipped/failed）；重跑时先读它、跳过 done 的 phase。与 `_meta/manifest.json`（完成态记录）区分。
+3. **收尾 manifest.json** 的 projectType/scannedAt/skillVersions.pm-scan 字段改为从 scan-result.json 读（project.name / generated_at / scanner.version / classifications）。
+
+**Baseline RED**：当前 project-mastery SKILL.md（改版前）波次 2 读 `_meta/project-type.json`、无 progress.json 维护逻辑、manifest 从 project-type.json 读字段。三点均不满足增量规则 → RED 成立。
+
+**验证**：dsp 上跑【学习】子流程，确认 ①不再产/读 project-type.json；②路由依据来自 scan-result.json.classifications；③`_meta/progress.json` 产出且 phases 有 status；④模拟中断后续跑能跳过 done 的 phase。
