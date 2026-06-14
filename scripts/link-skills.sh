@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 把工作区的每个 skills/<name> 软链到 ~/.claude/skills/<name>，使其全局可发现
 set -euo pipefail
-SRC_DIR="/Users/sunlc/sunlc_work/sunlc_skills/skills"
+SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/skills"
 DEST_DIR="$HOME/.claude/skills"
 mkdir -p "$DEST_DIR"
 for skill_dir in "$SRC_DIR"/*/; do
