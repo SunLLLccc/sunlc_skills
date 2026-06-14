@@ -7,6 +7,9 @@
 # 系统
 .DS_Store
 
+# Claude Code 运行时本地设置（含权限/调度锁，不属于工具集源码）
+.claude/
+
 # 构建产物
 **/dist/
 **/build/
