@@ -91,7 +91,7 @@ sunlc_skills/
 └── .gitignore                  排除测试靶子 / 依赖 / 构建产物 / .claude 运行时
 ```
 
-**测试靶子**：`dsp/`（gitignored，**不属于工具集源码**），仅用于 TDD GREEN 验证，其内容只出现在该项目的分析产出与 `docs/skill-design/` 压力场景里，永不进 skill 源码。
+**测试靶子**：一个 gitignored 的目标项目（**不属于工具集源码**），仅用于 TDD GREEN 验证，其内容只出现在该项目的分析产出与 `docs/skill-design/` 压力场景里，永不进 skill 源码。
 
 ---
 
@@ -109,6 +109,6 @@ sunlc_skills/
 ## 进度
 
 - ✅ **project-mastery 期1**：学习管线核心（pm-scan + pm-techstack-generic + pm-conventions + pm-api-index + pm-build-deploy + pm-kb-index + pm-verify + project-mastery 编排）已完成、通过整体最终审查。
-- ✅ **learn-project**：4 个 skill 全部完成，dsp 上端到端 GREEN。
+- ✅ **learn-project**：4 个 skill 全部完成，测试靶子上端到端 GREEN。
 - ⏳ **project-mastery 期2-4（规划中）**：期2 路由器特化（pm-techstack-{frontend/backend/fullstack}）+ pm-update 增量更新；期3 pm-dev 开发编排；期4 预定义 agents。
 - ⏳ **learn-project 延后**：lp-verify 文档质量校验、多受众变体。
