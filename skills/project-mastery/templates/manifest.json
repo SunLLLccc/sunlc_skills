@@ -1,0 +1,35 @@
+{
+  "projectName": "{从 scan-result.json 的 project.name 读}",
+  "projectRoot": "{PROJECT_ROOT绝对路径}",
+  "projectType": {
+    "primaryType": "{scan-result.json classifications 里 is_primary=true 的 type}",
+    "allTypes": "{scan-result.json classifications 的 type 列表}",
+    "confidence": "{scan-result.json project.confidence}",
+    "source": ".codebase/scan-result.json"
+  },
+  "generatedAt": "{UTC ISO 8601 时间戳，本次 KB 生成完成时刻}",
+  "scannedAt": "{从 scan-result.json 的 generated_at 读，KB 生成起始时刻}",
+  "sourceCommit": "{git rev-parse HEAD，无 git 则 null}",
+  "sourceVersion": "{若有版本号（如 pom.xml/package.json 的 version），填；否则 null}",
+  "pipeline": "project-mastery v1（期 1 学习子流程）",
+  "skillVersions": {
+    "pm-scan": "{从 scan-result.json 的 scanner.version 读，应为 v2}",
+    "pm-techstack-generic": "v1",
+    "pm-conventions": "v1",
+    "pm-api-index": "v1",
+    "pm-build-deploy": "v1",
+    "pm-kb-index": "v1",
+    "pm-verify": "v1"
+  },
+  "kbDocs": [
+    {"id": "01", "file": "01-项目概览.md", "skill": "pm-scan", "status": "generated"},
+    {"id": "02", "file": "02-技术栈与架构.md", "skill": "pm-techstack-generic", "status": "generated"},
+    {"id": "03", "file": "03-开发规范.md", "skill": "pm-conventions", "status": "generated"},
+    {"id": "04", "file": "04-API索引.md", "skill": "pm-api-index", "status": "generated"},
+    {"id": "05", "file": "05-构建打包部署.md", "skill": "pm-build-deploy", "status": "generated"},
+    {"id": "README", "file": "README.md", "skill": "pm-kb-index", "status": "generated"},
+    {"id": "06", "file": "06-校验报告.md", "skill": "pm-verify", "status": "generated"}
+  ],
+  "verificationStatus": "{从 06 报告提炼：如 'passed（抽样 N 条全部一致）' / 'partial（发现 M 条不一致）' / 'failed'}",
+  "subprocess": "learning"
+}

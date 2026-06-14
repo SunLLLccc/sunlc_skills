@@ -1,0 +1,16 @@
+{
+  "projectName": "{从 scan-result.json 的 project.name 读}",
+  "projectRoot": "{绝对路径}",
+  "generatedAt": "{首次生成时 ISO-8601，重跑不覆盖}",
+  "skillVersion": "project-mastery v1",
+  "sourceCommit": "{git -C {PROJECT_ROOT} rev-parse --short HEAD 或 未记录}",
+  "phases": [
+    { "name": "scan",        "skill": "pm-scan",             "status": "done", "output": [".codebase/scan-result.json", "01-项目概览.md"] },
+    { "name": "techstack",   "skill": "pm-techstack-generic", "status": "pending" },
+    { "name": "conventions", "skill": "pm-conventions",       "status": "pending" },
+    { "name": "api-index",   "skill": "pm-api-index",         "status": "pending" },
+    { "name": "build-deploy","skill": "pm-build-deploy",      "status": "pending" },
+    { "name": "kb-index",    "skill": "pm-kb-index",          "status": "pending" },
+    { "name": "verify",      "skill": "pm-verify",            "status": "pending" }
+  ]
+}
