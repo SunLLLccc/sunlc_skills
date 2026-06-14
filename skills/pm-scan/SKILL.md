@@ -155,41 +155,7 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 
 ### 01-项目概览.md 模板
 
-```markdown
-# 项目概览
-
-> 由 pm-scan 自动生成
-
-## 项目类型
-
-- **类型判定**：{type1}, {type2}, ...
-- **置信度**：{已确认/推断得出/不确定}（对应 scan-result.json 的 confirmed/inferred/uncertain）
-- **判定依据**：见 `.codebase/scan-result.json` 中对应条目的 evidence 字段
-
-## 目录结构概览
-
-{用树形或缩进列表展示顶层和关键子目录结构，不含 node_modules/target 等无关目录}
-
-## 规模指标
-
-| 指标 | 值 |
-|------|------|
-| 子模块/子项目数 | {n} |
-| 主要语言 | {language1}, {language2}, ... |
-| 配置文件 | {列出关键配置文件} |
-
-## 入口点
-
-| 模块/子项目 | 入口文件 | 说明 |
-|------------|----------|------|
-| {module} | {file} | {brief description} |
-
-## 顶层技术栈速览
-
-| 技术 | 版本 | 用途 | 证据位置 |
-|------|------|------|----------|
-| {tech} | {version，如配置中可直接读到则填，不强制} | {purpose} | {config file} |
-```
+> 产出格式见 `templates/01-项目概览.md`（执行时读取该模板填充，勿自行发明结构）。
 
 ### _meta/project-type.json（已退役）
 
