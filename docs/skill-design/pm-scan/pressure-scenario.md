@@ -58,3 +58,16 @@ baseline 产出仅为一段 Markdown 文本，没有：
 ### 额外跑偏：产出过多
 
 baseline 产出了大量本属于 pm-techstack 阶段的信息（架构详情、缓存机制、29个内置函数、安全漏洞列表等），超出 pm-scan 的职责范围。pm-scan 应只做概览和类型判定，详细分析留给后续 skill。
+
+## 增量 GREEN 规则（扫描缓存契约，2026-06-14 加入）
+
+除原 GREEN 规则外，pm-scan 现在还必须：
+
+1. 产出 `{PROJECT_ROOT}/.codebase/scan-result.json`，且通过 `schemas/codebase-scan-result.schema.json` 结构校验（required 字段齐全）。
+2. 产出 `{PROJECT_ROOT}/.codebase/scan-summary.md`（人类速览，一段话）。
+3. scan-result.json 的 `classifications` 取代旧 `project-type.json` 的 types/primaryType；不再产出 `project-type.json`。
+4. 每条结论的 `confidence` 字段是三态枚举之一（`confirmed`/`inferred`/`uncertain`），不再用 0-1 浮点。
+5. 人类文档 `01-项目概览.md` 的置信度展示改为中文标签（已确认/推断得出/不确定），不再用 high/medium/low。
+6. 每条结论带 ≥1 条真实 `evidence`（path 必须存在）；无法确认的写入 `questions[]`，不臆造。
+
+**Baseline RED（2026-06-14）**：当前 pm-scan SKILL.md 明确产 `_meta/project-type.json`（0-1 浮点置信度）、不产 `.codebase/scan-result.json`、01 文档用 high/medium/low。三点均不满足增量规则 → RED 成立。

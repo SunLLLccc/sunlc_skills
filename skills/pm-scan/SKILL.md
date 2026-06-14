@@ -15,8 +15,46 @@ pm-scan 是 project-mastery 学习管线的**波次 1**，是**路由器**。它
 
 ## 产出
 
-1. `{PROJECT_ROOT}/docs/project-knowledge/01-项目概览.md` — 项目概览文档
-2. `{PROJECT_ROOT}/docs/project-knowledge/_meta/project-type.json` — 结构化类型判定（供 router 读取）
+1. `{PROJECT_ROOT}/docs/project-knowledge/01-项目概览.md` — 项目概览文档（人类可读）
+2. `{PROJECT_ROOT}/.codebase/scan-result.json` — **机器契约**，须符合 `schemas/codebase-scan-result.schema.json`（后续 pm/lp skill 优先读它）
+3. `{PROJECT_ROOT}/.codebase/scan-summary.md` — 人类速览（一段话总结项目类型/技术栈/入口/命令）
+
+> 注：旧版产出的 `_meta/project-type.json` 已退役，其内容被 scan-result.json 的 `classifications` 取代。**若目标项目存在旧版 `_meta/project-type.json`（前序版本产物），pm-scan 执行时删除它**——该文件是本工具集的退役产物，非用户内容。
+
+## 扫描缓存（机器契约，必产）
+
+pm-scan 除人类可读的 01 文档外，**必须**产出机器可消费的扫描缓存，供后续 pm/lp skill 复用，避免重复扫描（小模型下尤其关键——重扫既费 context 又易不一致）。
+
+### scan-result.json 写入规则
+
+须符合 `schemas/codebase-scan-result.schema.json`，逐字段：
+
+1. `schema_version` 固定 `"1.0"`；`project_root` 填目标项目绝对路径；`generated_at` 填执行时 ISO-8601 时间戳（`date -u +"%Y-%m-%dT%H:%M:%SZ"`）。
+2. `scanner`：`{"name": "pm-scan", "version": "v2"}`（v2 = 引入缓存契约后的版本）。
+3. `project`：`name`（从 package.json/pom.xml/README 取）+ `summary`（一句话）+ `confidence`（三态）+ `evidence`。
+4. `classifications`：从"类型识别规则"的多维度叠加结果填入。每条带 `type` + `is_primary`（最核心类型标 true，仅 1 条）+ `confidence`（三态）+ `evidence`。**取代旧 types/primaryType**。
+5. `technologies`：第 1 层识别到的技术栈（语言/框架/包管理/构建/测试工具），每条带 name/version(可空)/category/purpose/confidence/evidence。
+6. `commands`：从配置文件 scripts 字段提取的命令（install/dev/build/test 等），每条带 name/command/working_directory/purpose/confidence/evidence。
+7. `modules`：monorepo/多模块项目的子模块，每条带 name/path/role/module_type/depends_on/confidence/evidence。单模块项目可只填 1 条（项目自身）。
+8. `entrypoints`：第 2 层定位的入口点，每条带 name/path/kind/description/confidence/evidence。无单一入口则留空数组并在 questions 里说明。
+9. `documents`：扫描到的关键文档（README/CLAUDE.md/架构图等），每条带 path/role/notes。
+10. `questions`：无法确认的项，每条带 question/reason/可选 suggested_confirmation。
+
+### scan-result.json 三态置信度（取代 0-1 浮点）
+
+每条结论的 `confidence` 字段是枚举：
+
+| 英文枚举（机器字段） | 中文标签（人类文档展示） | 含义 |
+|---|---|---|
+| `confirmed` | 已确认 | 源码/配置/依赖声明/项目文档中有直接证据 |
+| `inferred` | 推断得出 | 由目录结构、命名、调用关系等间接证据合理推断 |
+| `uncertain` | 不确定 | 证据不足、存在冲突或需运行才能确认 |
+
+**铁律**：机器字段一律用英文枚举（`confirmed`/`inferred`/`uncertain`）；人类文档（01-项目概览.md）一律用中文标签。`uncertain` 的结论必须同时在 `questions[]` 里写明缺口，不得臆造补全。
+
+### scan-summary.md（人类速览）
+
+一段话（3-8 行）：项目是什么、主要类型、核心语言/框架、入口、关键命令。从 scan-result.json 提炼，不引入新结论。
 
 ## 扫描策略
 
@@ -98,7 +136,7 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 2. 收集匹配的证据（具体文件名、配置内容、依赖声明等）
 3. 所有匹配的类型都加入类型数组（多维度叠加）
 4. 若无任何匹配，标记为 `["other"]`
-5. **primaryType 选取规则**：从 types 数组中取置信度最高的类型作为 primaryType；若多个类型置信度并列，取最能代表项目本质的那个（如全栈项目取 `fullstack` 而非 `microservices`）
+5. **is_primary 标记规则**：在 scan-result.json 的 `classifications` 里，给最核心（最能代表项目本质）的那条类型标 `is_primary: true`（仅 1 条）；若多个类型置信度并列，取最能代表项目本质的（如全栈项目取 `fullstack` 而非 `microservices`）。取代旧 `primaryType` 字段。
 
 ## 规模指标采集
 
@@ -125,8 +163,8 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 ## 项目类型
 
 - **类型判定**：{type1}, {type2}, ...
-- **置信度**：{high/medium/low}（{具体数值，如 0.9}）
-- **判定依据**：见 `_meta/project-type.json` 中的 evidence 字段
+- **置信度**：{已确认/推断得出/不确定}（对应 scan-result.json 的 confirmed/inferred/uncertain）
+- **判定依据**：见 `.codebase/scan-result.json` 中对应条目的 evidence 字段
 
 ## 目录结构概览
 
@@ -153,51 +191,21 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 | {tech} | {version，如配置中可直接读到则填，不强制} | {purpose} | {config file} |
 ```
 
-### _meta/project-type.json 模板
+### _meta/project-type.json（已退役）
 
-```json
-{
-  "projectName": "{项目名称：从 package.json/pom.xml/README 等获取}",
-  "projectRoot": "{项目根目录的绝对路径}",
-  "types": ["{匹配的类型标识，可多个，多维度叠加}"],
-  "primaryType": "{置信度最高 / 最能代表项目本质的类型}",
-  "confidence": 0.9,
-  "requiresHumanReview": false,
-  "evidence": [
-    {
-      "type": "{type1}",
-      "indicators": [
-        "{文件路径}: {支撑该类型判定的具体证据}",
-        "{文件路径}: {另一条证据}"
-      ]
-    },
-    {
-      "type": "{type2}",
-      "indicators": [
-        "{文件路径}: {支撑该类型判定的证据}"
-      ]
-    }
-  ],
-  "scannedAt": "{ISO 8601 时间戳}",
-  "scanVersion": "pm-scan v1"
-}
-```
+类型判定的结构化结果已迁入 `.codebase/scan-result.json` 的 `classifications` 字段，不再单独产 project-type.json。
 
 ## 置信度与依据要求
 
-### 置信度等级
+### 置信度等级（三态）
 
-| 等级 | 范围 | 含义 |
-|------|------|------|
-| high | 0.8 - 1.0 | 配置文件/依赖声明中有明确证据，几乎无歧义 |
-| medium | 0.5 - 0.79 | 有间接证据（如目录结构推断），但缺少配置文件直接声明 |
-| low | 0.0 - 0.49 | 证据不足，类型判定不确定，建议人工复核 |
+见上文"扫描缓存（机器契约）"的三态表：`confirmed`（已确认）/ `inferred`（推断得出）/ `uncertain`（不确定）。机器字段用英文枚举，01 文档用中文标签。
 
 ### 低置信度处理
 
-当整体置信度为 low（<0.5）时：
-- 在 `project-type.json` 中添加可选字段 `"requiresHumanReview": true`
-- 在概览文档的项目类型处标注"**建议人工复核**"
+当某条结论为 `uncertain`（不确定）时：
+- 在 scan-result.json 该结论对应条目的 `questions[]` 里写明缺口（question + reason）。
+- 在概览文档（01）的项目类型处标注"**建议人工复核**"。
 
 ### 依据要求
 
@@ -215,9 +223,9 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 
 - **无单一入口**：library、纯聚合模块、无明确启动入口的项目——入口点定位步骤标注"无单一入口"并跳过，不强行编造入口。
 - **配置文件超过 20 个**：优先完成类型判定，超出部分说明原因（如"多模块项目，每模块一组配置"）并只读对判定关键的，不强求全读。
-- **多类型并列选 primaryType**：当多个类型置信度相同时，取最能代表项目本质的那个（如全栈项目取 `fullstack` 而非 `microservices`；库项目取 `library` 而非 `cli`）。
-- **低置信度（<0.5）**：在 `_meta/project-type.json` 设 `requiresHumanReview: true`，并在概览文档项目类型处标注"**建议人工复核**"。
-- **极小项目（<20 文件）**：证据可能不足以高置信度判定，如实标注置信度（多为 medium/low），不强行拔高；规模指标如实反映小规模。
+- **多类型并列选 is_primary**：当多个类型置信度相同时，取最能代表项目本质的那个标 `is_primary: true`（如全栈项目取 `fullstack` 而非 `microservices`；库项目取 `library` 而非 `cli`）。
+- **低置信度（uncertain）**：当某条类型判定为 `uncertain` 时，在 scan-result.json 该条目的 `questions[]` 写明缺口，并在概览文档项目类型处标注"**建议人工复核**"。
+- **极小项目（<20 文件）**：证据可能不足以高置信度判定，如实标注 confidence（多为 `inferred`/`uncertain`），不强行拔高；规模指标如实反映小规模。
 
 ## 执行检查清单
 
@@ -230,6 +238,6 @@ application / cli / web 服务类项目必须执行；library 或纯聚合模块
 5. [ ] 按类型清单逐一判定，收集证据
 6. [ ] 计算置信度
 7. [ ] 采集规模指标
-8. [ ] 写入 `docs/project-knowledge/01-项目概览.md`
-9. [ ] 写入 `docs/project-knowledge/_meta/project-type.json`
-10. [ ] 自检：每条类型都有证据？置信度合理？产出格式符合模板？
+8. [ ] 写入 `docs/project-knowledge/01-项目概览.md`（置信度用中文三态标签）
+9. [ ] 写入 `.codebase/scan-result.json`（schema 校验通过）+ `.codebase/scan-summary.md`
+10. [ ] 自检：scan-result.json required 字段齐全？每条结论带 evidence 且 path 真实？uncertain 项进 questions？不再产 project-type.json？
