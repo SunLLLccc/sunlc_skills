@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sunlc-skills.local/schemas/codebase-scan-result.schema.json",
+  "title": "Codebase Scan Result",
+  "description": "pm-scan 产出的项目扫描缓存契约。后续 pm/lp skill 优先读取此缓存，避免重复扫描（小模型下尤其关键）。置信度三态：confirmed=已确认 / inferred=推断得出 / uncertain=不确定；机器字段用英文枚举，人类文档用中文标签。",
+  "type": "object",
+  "required": [
+    "schema_version", "project_root", "generated_at", "scanner",
+    "project", "classifications", "technologies", "commands",
+    "modules", "entrypoints", "documents", "questions"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "project_root": { "type": "string" },
+    "generated_at": { "type": "string", "description": "ISO-8601 时间戳，由执行 runner 注入" },
+    "scanner": {
+      "type": "object",
+      "description": "生成此缓存的扫描器标识，供 manifest 引用",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "summary", "confidence", "evidence"],
+      "properties": {
+        "name": { "type": "string" },
+        "summary": { "type": "string" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "evidence": { "$ref": "#/$defs/evidence_list" }
+      }
+    },
+    "classifications": {
+      "type": "array",
+      "description": "项目类型识别（多维度叠加，取代旧 project-type.json 的 types/primaryType）",
+      "items": {
+        "type": "object",
+        "required": ["type", "confidence", "evidence"],
+        "properties": {
+          "type": { "type": "string", "enum": ["frontend","backend","fullstack","mobile","desktop","cli","library","monorepo","microservices","service","other"] },
+          "is_primary": { "type": "boolean", "description": "true 表示该项目最核心的类型（取代旧 primaryType）" },
+          "detail": { "type": "string" },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "evidence": { "$ref": "#/$defs/evidence_list" }
+        }
+      }
+    },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "category", "confidence", "evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "category": { "type": "string", "enum": ["language","framework","package-manager","build-tool","test-tool","database","runtime","deployment","library","unknown"] },
+          "purpose": { "type": "string" },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "evidence": { "$ref": "#/$defs/evidence_list" }
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "command", "purpose", "confidence", "evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "command": { "type": "string" },
+          "working_directory": { "type": "string" },
+          "purpose": { "type": "string", "enum": ["install","dev","build","test","lint","package","deploy","run","unknown"] },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "evidence": { "$ref": "#/$defs/evidence_list" }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "role", "confidence", "evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "role": { "type": "string" },
+          "module_type": { "type": "string" },
+          "depends_on": { "type": "array", "items": { "type": "string" } },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "evidence": { "$ref": "#/$defs/evidence_list" }
+        }
+      }
+    },
+    "entrypoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path", "kind", "confidence", "evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "path": { "type": "string" },
+          "kind": { "type": "string", "enum": ["application","api","cli","frontend","test","script","library","unknown"] },
+          "description": { "type": "string" },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "evidence": { "$ref": "#/$defs/evidence_list" }
+        }
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "role"],
+        "properties": {
+          "path": { "type": "string" },
+          "role": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question", "reason"],
+        "properties": {
+          "question": { "type": "string" },
+          "reason": { "type": "string" },
+          "suggested_confirmation": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "confidence": {
+      "type": "string",
+      "enum": ["confirmed", "inferred", "uncertain"],
+      "description": "confirmed=已确认（源码/配置/文档直接证据）/ inferred=推断得出（目录/命名/调用关系间接证据）/ uncertain=不确定（证据不足或冲突）"
+    },
+    "evidence_list": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}
