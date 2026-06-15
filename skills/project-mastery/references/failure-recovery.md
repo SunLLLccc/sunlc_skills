@@ -49,7 +49,7 @@
    - **是**（如 scan failed → 波次 2 全部失去路由依据）：停管线，向用户报告 scan 失败、需先修复。
    - **否**（如 api-index failed → kb-index 仍能汇编其它 4 份文档）：续跑。
 2. **retryable=true 的 failed**：在收尾前对该 phase 单独重试一次（用同样或更强模型）。仍失败则保留 failed，记 knownGaps。
-3. **retryable=false 的 failed**：不重试。该维度在 KB 里降级呈现（04-API索引 写"经探测无对外 API，本文档降级为记录现有可调用入口"或留空 + 注明）。
+3. **retryable=false 的 failed**：不重试。该维度在 KB 里降级呈现（04-001-API索引 写"经探测无对外 API，本文档降级为记录现有可调用入口"或留空 + 注明）。
 4. **收尾 manifest**：`knownGaps` 字段记录所有 failed/skipped phase，让使用者知道 KB 的缺口。
 
 ## 各 skill 的失败兜底（边界处理补充）

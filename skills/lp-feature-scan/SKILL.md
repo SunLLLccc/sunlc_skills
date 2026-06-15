@@ -14,11 +14,11 @@ lp-feature-scan 是 learn-project（项目学习文档生成）管线的**第 1 
 ## 输入
 
 - `PROJECT_ROOT`：目标项目的根目录绝对路径
-- `{PROJECT_ROOT}/docs/project-knowledge/01-项目概览.md`、`02-技术栈与架构.md`：定位阶段（pm-scan/pm-techstack）的产出，作为上下文输入（提供项目类型、目录结构、技术栈、自封装框架位置）。若不存在，本 skill 自行做轻量顶层扫描。
+- `{PROJECT_ROOT}/docs/project-knowledge/01-001-项目概览.md`、`02-001-技术栈与架构.md`：定位阶段（pm-scan/pm-techstack）的产出，作为上下文输入（提供项目类型、目录结构、技术栈、自封装框架位置）。若不存在，本 skill 自行做轻量顶层扫描。
 
 ## 产出
 
-- `{PROJECT_ROOT}/docs/learning-docs/features/inventory.md` — 功能清单（含未选中的，按核心度排序，每条带 `- [ ]` 勾选框）
+- `{PROJECT_ROOT}/docs/learning-docs/features/01-001-功能清单.md` — 功能清单（含未选中的，按核心度排序，每条带 `- [ ]` 勾选框）
 
 ## 核心原则
 
@@ -114,13 +114,13 @@ lp-feature-scan 是 learn-project（项目学习文档生成）管线的**第 1 
 
 ## 产出格式
 
-### features/inventory.md 模板
+### features/01-001-功能清单.md 模板
 
-> 产出格式见 `templates/inventory.md`（执行时读取该模板填充，勿自行发明结构）。
+> 产出格式见 `templates/01-001-功能清单.md`（执行时读取该模板填充，勿自行发明结构）。
 
 ## 输入输出预算（小模型纪律）
 
-- **单步单产物**：本次只产 `features/inventory.md`（一份功能清单），不并行产其它。
+- **单步单产物**：本次只产 `features/01-001-功能清单.md`（一份功能清单），不并行产其它。
 - **读预算**：5 层扫描（文档层 → 结构层 → 入口层 → 示例层 → 聚类去重）；限深 ≤3 层、读取配置/入口文件总数 ≤20 个，单文件 ≤500 行；禁扫 node_modules/dist/target/build/.git/vendor/__pycache__。
 - **写预算**：inventory 按核心度排序（核心在前），**不强求穷举所有功能**；大项目只列 top N 候选，交人在回路挑选。
 - **证据先行**：每条功能附 `{路径}: {说明}` 真实证据（指向文件/目录/入口）；无证据不入册、零臆造。
@@ -129,7 +129,7 @@ lp-feature-scan 是 learn-project（项目学习文档生成）管线的**第 1 
 
 执行 lp-feature-scan 时，按以下顺序完成：
 
-1. [ ] 读取 `01-项目概览.md`、`02-技术栈与架构.md`（若存在）作为上下文
+1. [ ] 读取 `01-001-项目概览.md`、`02-001-技术栈与架构.md`（若存在）作为上下文
 2. [ ] 第 1 层：读 README/docs/CHANGELOG，提取文档明示的功能候选
 3. [ ] 第 2 层：`ls` 顶层结构，识别候选功能区
 4. [ ] 第 3 层：定位 CLI/API/导出/插件入口，反推用户可感知能力
@@ -137,5 +137,5 @@ lp-feature-scan 是 learn-project（项目学习文档生成）管线的**第 1 
 6. [ ] 第 5 层：聚类去重，统一粒度
 7. [ ] 为每条功能填四字段（核心度/复杂度/依赖/证据），证据为真实路径+说明
 8. [ ] 按核心度排序，每条加 `- [ ]` 勾选框
-9. [ ] 写入 `features/inventory.md`
+9. [ ] 写入 `features/01-001-功能清单.md`
 10. [ ] 自检：每条是项目特定功能？四字段齐全？证据真实可验证？零臆造？勾选框在？按核心度排序？

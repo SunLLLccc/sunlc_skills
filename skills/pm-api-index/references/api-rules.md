@@ -37,7 +37,7 @@
 |----|----------|------------------------------------------------|
 | 1 | HTTP 路由 | 搜索 Web 框架路由注解/装饰器：Spring `@*Mapping`/`@RestController`、JS `router.get/post`、Python `@app.route`/`@*Api_view`、.NET `[Http*]` |
 | 2 | RPC 服务接口 | 搜索 RPC 框架服务声明：Dubbo `@DubboService`/`@Service`(dubbo)、gRPC `*ServiceImpl` + `.proto`、Thrift、`@FeignClient` |
-| 3 | SPI / 跨模块服务接口 | 从 `02-技术栈与架构.md` 的自封装框架清单找"解耦接口"；搜索项目内跨模块 import 的 interface/trait/protocol 定义 |
+| 3 | SPI / 跨模块服务接口 | 从 `02-001-技术栈与架构.md` 的自封装框架清单找"解耦接口"；搜索项目内跨模块 import 的 interface/trait/protocol 定义 |
 | 4 | 前端调用层 | 前端项目的 `api/`/`services/`/`request` 目录；axios/fetch 封装；rpc-client 生成代码 |
 | 5 | CLI 命令 | `package.json` 的 `bin`、`setup.py`/`pyproject.toml` 的 `entry_points`/`[project.scripts]`、cobra/clap 注册的命令 |
 | 6 | 事件 handler / 消息消费者 / 定时触发器 | 搜索消息监听注解：`@KafkaListener`/`@RabbitListener`/`@RocketMQMessageListener`/`@EventListener`/`@EventPattern`/`@Consumer`；定时任务入口：Spring `@Scheduled`、Quartz Job、cron 配置、Node `node-cron`/`setInterval` 调度的入口 |
@@ -58,7 +58,7 @@
 2. **核心内部 API**（核心 Service / 引擎门面 / 自封装框架入口）：标"被调用方"（哪些对外 API 或其它内部 API 调用它）。
 3. **梳理手段**：
    - 静态：grep 该 API 方法名/路径的调用点；import/依赖关系。
-   - 利用 `02-技术栈与架构.md` 的模块依赖图作为宏观参照。
+   - 利用 `02-001-技术栈与架构.md` 的模块依赖图作为宏观参照。
 4. **不必逐条标全**：非核心的 CRUD 内部方法、私有 helper 可不标调用关系，但**对外 API 必须全标**。
 
 ## 大量 API 的采样与覆盖率声明（禁止静默截断）
@@ -80,7 +80,7 @@
 
 ### 第 1 步：加载上下文与形态探测（必须执行）
 
-1. 读 `01-项目概览.md`、`02-技术栈与架构.md`，获取项目类型、目录结构、技术栈、自封装框架位置（SPI 接口通常在这里）。
+1. 读 `01-001-项目概览.md`、`02-001-技术栈与架构.md`，获取项目类型、目录结构、技术栈、自封装框架位置（SPI 接口通常在这里）。
 2. 按"API 形态探测清单"逐项 grep/搜索，记录每类形态的发现情况。
 
 ### 第 2 步：逐形态收录 API（必须执行）

@@ -39,14 +39,14 @@
 给一份无标记的文档按标题切 section，注入 AI-GENERATED + HUMAN-NOTES 骨架：
 
 ```bash
-python3 scripts/update_ai_generated_block.py {PROJECT_ROOT}/docs/project-knowledge/01-项目概览.md --init
+python3 scripts/update_ai_generated_block.py {PROJECT_ROOT}/docs/project-knowledge/01-001-项目概览.md --init
 # 加 --dry-run 先看 diff
 ```
 
 ### 2. 列出 section：`--list`
 
 ```bash
-python3 scripts/update_ai_generated_block.py 01-项目概览.md --list
+python3 scripts/update_ai_generated_block.py 01-001-项目概览.md --list
 # 输出：技术栈  AI=有  HUMAN=有
 ```
 
@@ -55,7 +55,7 @@ python3 scripts/update_ai_generated_block.py 01-项目概览.md --list
 把新 AI 内容写进指定 section 的 AI-GENERATED 块，HUMAN-NOTES 块原样保留：
 
 ```bash
-python3 scripts/update_ai_generated_block.py 01-项目概览.md \
+python3 scripts/update_ai_generated_block.py 01-001-项目概览.md \
     --section 技术栈 --ai-file /tmp/new-techstack.md --dry-run
 # 确认 diff 后去掉 --dry-run 写盘
 ```
@@ -74,9 +74,9 @@ python3 scripts/update_ai_generated_block.py 01-项目概览.md \
 
 ## 何时给文档加双区标记
 
-- **【学习】子流程首次生成**：可选加标记。若预期该文档会被人工补充（典型：03-开发规范、01-项目概览的入口说明），首次生成时即 `--init` 注入骨架。
+- **【学习】子流程首次生成**：可选加标记。若预期该文档会被人工补充（典型：03-001-开发规范、01-001-项目概览的入口说明），首次生成时即 `--init` 注入骨架。
 - **【更新】子流程**：必须已加标记才能增量替换；无标记的文档先 `--init`。
-- **纯 AI 文档（无人工补充预期）**：可不加（如 06-校验报告，每次重生成整份覆盖即可）。
+- **纯 AI 文档（无人工补充预期）**：可不加（如 06-001-校验报告，每次重生成整份覆盖即可）。
 
 ## 边界
 
