@@ -8,9 +8,10 @@
     { "name": "scan",        "skill": "pm-scan",             "status": "done", "output": [".codebase/scan-result.json", "01-项目概览.md"] },
     { "name": "techstack",   "skill": "pm-techstack-generic", "status": "pending" },
     { "name": "conventions", "skill": "pm-conventions",       "status": "pending" },
-    { "name": "api-index",   "skill": "pm-api-index",         "status": "pending" },
     { "name": "build-deploy","skill": "pm-build-deploy",      "status": "pending" },
     { "name": "kb-index",    "skill": "pm-kb-index",          "status": "pending" },
-    { "name": "verify",      "skill": "pm-verify",            "status": "pending" }
-  ]
+    { "name": "verify",      "skill": "pm-verify-lite",       "status": "pending" }
+  ],
+  "_note": "phase.status 取值：pending / in-progress / done（带 output）/ skipped / failed（带 reason+partialOutput+retryable）。failed 不阻塞管线——编排器记入 manifest.knownGaps 并续跑下一独立 phase。失败恢复策略与字段语义详见 references/failure-recovery.md。verify 默认 pm-verify-lite；opt-in 全量核对改 skill 为 pm-verify。",
+  "_failedPhaseExample": { "name": "api-index", "skill": "pm-api-index", "status": "failed", "reason": "探测后确认无对外 API 形态", "partialOutput": null, "retryable": false }
 }
