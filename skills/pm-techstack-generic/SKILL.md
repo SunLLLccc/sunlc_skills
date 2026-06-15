@@ -134,6 +134,13 @@ pm-techstack-generic 是 project-mastery 学习管线的**波次 2** 分析 skil
 
 > 产出格式见 `templates/02-技术栈与架构.md`（执行时读取该模板填充，勿自行发明结构）。
 
+## 输入输出预算（小模型纪律）
+
+- **单步单产物**：本次只产 `02-技术栈与架构.md`（一篇），不并行产其它。
+- **读预算**：Step 0 先读 `.codebase/scan-result.json` 的 classifications/technologies（已有结构化结论）；深挖按需打开 ≤15 个源码/配置文件，单文件 ≤500 行；禁扫 node_modules/dist/target/build/.git/vendor/__pycache__；限深 ≤3 层。
+- **写预算**：02 默认 8000-12000 字；自封装框架若 >8 个，只详写 top N（按被引用次数），其余进"待深挖清单"延后。
+- **证据先行**：每条结论带 `{文件路径}:行` 或配置字段；无证据标 `uncertain`/「推断」，不臆造。
+
 ## 执行检查清单
 
 执行 pm-techstack-generic 时，按以下顺序完成：
