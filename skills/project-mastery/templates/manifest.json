@@ -22,13 +22,13 @@
     "pm-verify": "v1"
   },
   "kbDocs": [
-    {"id": "01", "file": "01-项目概览.md", "skill": "pm-scan", "status": "generated"},
-    {"id": "02", "file": "02-技术栈与架构.md", "skill": "pm-techstack-generic", "status": "generated"},
-    {"id": "03", "file": "03-开发规范.md", "skill": "pm-conventions", "status": "generated"},
-    {"id": "04", "file": "04-API索引.md", "skill": "pm-api-index", "status": "generated"},
-    {"id": "05", "file": "05-构建打包部署.md", "skill": "pm-build-deploy", "status": "generated"},
+    {"id": "01", "file": "01-001-项目概览.md", "skill": "pm-scan", "status": "generated"},
+    {"id": "02", "file": "02-001-技术栈与架构.md", "skill": "pm-techstack-generic", "status": "generated"},
+    {"id": "03", "file": "03-001-开发规范.md", "skill": "pm-conventions", "status": "generated"},
+    {"id": "04", "file": "04-001-API索引.md", "skill": "pm-api-index", "status": "generated"},
+    {"id": "05", "file": "05-001-构建打包部署.md", "skill": "pm-build-deploy", "status": "generated"},
     {"id": "README", "file": "README.md", "skill": "pm-kb-index", "status": "generated"},
-    {"id": "06", "file": "06-校验报告.md", "skill": "pm-verify-lite（默认）/ pm-verify（opt-in）", "status": "generated"}
+    {"id": "06", "file": "06-001-校验报告.md", "skill": "pm-verify-lite（默认）/ pm-verify（opt-in）", "status": "generated"}
   ],
   "verificationStatus": "{从 06 报告提炼：如 'passed（抽样 N 条全部一致）' / 'partial（发现 M 条不一致）' / 'failed'}",
   "knownGaps": "{数组：progress.json 里 status=failed/skipped 的 phase 摘要，如 [{phase:'api-index', reason:'无对外 API', retryable:false}]；无缺口则空数组 []}",

@@ -5,7 +5,7 @@
   "skillVersion": "project-mastery v1",
   "sourceCommit": "{git -C {PROJECT_ROOT} rev-parse --short HEAD 或 未记录}",
   "phases": [
-    { "name": "scan",        "skill": "pm-scan",             "status": "done", "output": [".codebase/scan-result.json", "01-项目概览.md"] },
+    { "name": "scan",        "skill": "pm-scan",             "status": "done", "output": [".codebase/scan-result.json", "01-001-项目概览.md"] },
     { "name": "techstack",   "skill": "pm-techstack-generic", "status": "pending" },
     { "name": "conventions", "skill": "pm-conventions",       "status": "pending" },
     { "name": "build-deploy","skill": "pm-build-deploy",      "status": "pending" },
