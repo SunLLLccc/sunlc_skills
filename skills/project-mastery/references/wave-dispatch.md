@@ -3,6 +3,8 @@
 > 执行各波次 dispatch subagent 时读取本文件，按对应模板构造精确指令。
 > 本文件由 project-mastery SKILL.md 抽出，供编排器执行时按需加载（progressive disclosure）。
 
+**任务输入包约定**：每个 dispatch 指令模板都是"任务输入包"的实例化（5 组件：task.md/relevant-files.txt/scan-result.json/previous-output.md/output-template.md）。各模板的"身份/遵循/输入/产出/约束"段对应这 5 个组件，subagent 拿到即可执行、无需自行推断缺失信息。约定详见 `references/task-input-package.md`（按需读取）。
+
 ## 波次 1：dispatch pm-scan
 
 ```
