@@ -20,7 +20,7 @@
 
 ---
 
-## Skill 清单（12 个）
+## Skill 清单（13 个）
 
 ### project-mastery（接手开发）— `pm-*`
 
@@ -33,9 +33,10 @@
 | `pm-api-index` | API 索引（波次2） | agent |
 | `pm-build-deploy` | 构建/打包/部署文档（波次2） | agent |
 | `pm-kb-index` | 知识库总索引 + 任务型阅读路径（波次3） | 主会话 |
-| `pm-verify` | 知识库抽样校验（只读、只报告）（波次4） | agent |
+| `pm-verify-lite` | 轻量抽样校验（**默认**，每文档 3-5 条断言、输出短、只报告）（波次4） | agent |
+| `pm-verify` | 全量抽样校验（**opt-in**，风险信号/人工指定/关键项目时升级）（波次4） | agent |
 
-**学习管线**：4 波次 — `pm-scan`（定位/类型）→ 并行 4 分析（techstack / conventions / api / build-deploy）→ `pm-kb-index`（索引）→ `pm-verify`（校验）→ manifest 收尾。
+**学习管线**：4 波次 — `pm-scan`（定位/类型）→ 并行 4 分析（techstack / conventions / api / build-deploy）→ `pm-kb-index`（索引）→ `pm-verify-lite`（校验，默认；全量改 opt-in `pm-verify`）→ manifest 收尾。
 
 ### learn-project（学习理解）— `lp-*`
 
@@ -53,15 +54,98 @@
 
 ## 安装与使用
 
+### 1. 环境要求
+
+- **Claude Code**（CLI / 桌面 / IDE 插件均可）—— 承载 skill 发现与执行
+- **bash** —— `link-skills.sh`
+- **Python 3.6+**（可选）—— 仅 `scripts/validate-kb.py` 与 `update_ai_generated_block.py` 需要，纯 stdlib、无第三方依赖
+
+### 2. 安装（软链到全局）
+
 ```bash
-# 把每个 skills/<name> 软链到 ~/.claude/skills/<name>，使其全局可发现
-bash scripts/link-skills.sh
+git clone <repo> ~/sunlc_skills
+bash ~/sunlc_skills/scripts/link-skills.sh
 ```
 
-链接后，在任意项目里按需触发对应 skill（其 `description` 决定何时被自动选中）：
+脚本把每个 `skills/<name>` 软链到 `~/.claude/skills/<name>`，使其在所有项目里全局可发现。脚本用 `$(dirname "${BASH_SOURCE[0]}")/..` 相对定位源目录，**在任意目录调用均可**。校验链接是否生效：
 
-- 接手开发 → `/project-mastery`
-- 生成学习文档 → `/learn-project`
+```bash
+ls -l ~/.claude/skills/ | grep -E 'pm-scan|learn-project'
+# 应指向 .../sunlc_skills/skills/ 下对应目录
+```
+
+> skill 源码更新后**无需重新链接**（软链跟随源码）；新增 skill 目录后重跑一次 `link-skills.sh` 即可补链。
+
+### 3. 在目标项目里触发
+
+进入**目标项目根目录**启动 Claude Code，两种等价方式：
+
+- **自然语言**（推荐）—— skill 的 `description` 字段决定何时自动选中：
+  - 「接手这个项目，帮我建立项目知识库」→ 自动选中 `project-mastery`
+  - 「我想读懂这个项目，生成学习文档」→ 自动选中 `learn-project`
+  - 也可直接给出项目根：「学习 `/abs/path/to/project`」
+- **显式 slash**：`/project-mastery`、`/learn-project`（直接点名叫起）
+
+### 4. 典型流程
+
+#### A. 接手开发 → `project-mastery`
+
+主会话先做**入口判定**（探测目标项目的知识库状态：有需求文档→开发、无 KB/无 manifest→学习、KB 在且代码变了→更新），命中【学习】后按 4 波次跑：
+
+```
+波次1  pm-scan            → 01-项目概览  +  .codebase/scan-result.json（扫描缓存/类型识别）
+波次2  并行四分析          → 02-技术栈 / 03-规范 / 04-API索引 / 05-构建部署
+波次3  pm-kb-index        → README（知识库总索引 + 任务型阅读路径）
+波次4  pm-verify-lite     → 06-校验报告（默认轻量抽样；要全量改 opt-in 的 pm-verify）
+收尾   主会话             → _meta/manifest.json（记录源码版本，供【更新】diff 判定）
+```
+
+- 产出落 `{PROJECT_ROOT}/docs/project-knowledge/`
+- 中途可中断，`_meta/progress.json` 支持**断点续跑**
+- 产出每条结论附真实证据，零臆造；可信度三态（已确认 / 推断 / 不确定）
+
+#### B. 学习理解 → `learn-project`
+
+主会话串一条管线，第 0 步**复用 project-mastery 的扫描底座**（已有 project-knowledge/ 就直接读、不重扫）：
+
+```
+第0步  复用 pm-scan + pm-techstack-generic 定位（已有则复用）
+第1步  lp-feature-scan     → 01-功能清单（可勾选，带核心度/复杂度/依赖/证据）
+第2步  人在回路挑功能 ← 你在这里勾选要深入的功能（≤4 个可 AskUserQuestion，更多直接改清单）
+第3步  逐功能：lp-prompt-gen 出教学提示词 → dispatch subagent 按提示词出学习文档
+第4步  lp-index           → README（学习路径索引）
+```
+
+- 产出落 `{PROJECT_ROOT}/docs/learning-docs/`，与 A 的目录并列、互不覆盖
+- 只对**选中**的功能生成；文档由保存的提示词驱动，提示词可改后定点重跑
+
+### 5. 产出文件命名
+
+统一 `类型号-序号-文件名.md`（全中文，除命令/代码）。例：
+
+- **project-mastery**：`01-001-项目概览.md` … `06-001-校验报告.md`（各类型当前单文件，序号 001；同类拆分时 002/003 递增）
+- **learn-project**：`features/01-001-功能清单.md`、`docs/02-001-<功能>.md`、`features/prompts/03-001-<功能>.md`（序号=选中顺序，prompt↔doc 同序号配对）
+
+`README.md`、`_meta/*.json`、`.codebase/*` 不套此规则（分别是索引前门 / 元信息 / 机器契约）。
+
+### 6. 配套脚本（可选）
+
+```bash
+# 校验知识库质量（CI 可跑，查 scan-result.json 契约 / 三态枚举 / 占位符 / 死链 / 必填章节）
+python3 scripts/validate-kb.py {PROJECT_ROOT}        # 人类可读报告
+python3 scripts/validate-kb.py {PROJECT_ROOT} --json # 机读 JSON
+
+# AI/HUMAN 双区增量更新（供【更新】子流程；也可手动用于任意 KB 文档）
+python3 scripts/update_ai_generated_block.py {KB文档}.md --init                # 按 ## 标题注入双区骨架
+python3 scripts/update_ai_generated_block.py {KB文档}.md --list                 # 列出 section 及其 AI/HUMAN 区状态
+python3 scripts/update_ai_generated_block.py {KB文档}.md --section <id> --ai-file <新内容> --dry-run  # 试替换 AI 区（HUMAN 区物理保留）
+```
+
+### 7. 何时用哪套
+
+- 要在本项目里**写 / 改代码** → `project-mastery`（产出规范/API/构建/部署，工程事实）
+- 要**读懂**本项目设计 → `learn-project`（产出设计/概念/功能走读，教学理解）
+- 两者可先后用、产出目录独立；先 `learn-project` 读懂再用 `project-mastery` 建库也常见
 
 ---
 
@@ -78,11 +162,15 @@ bash scripts/link-skills.sh
 
 ```
 sunlc_skills/
-├── skills/                     12 个通用 skill（SKILL.md + YAML frontmatter）
-│   ├── project-mastery/        └ pm-* × 7（接手开发）
+├── skills/                     13 个通用 skill（SKILL.md + YAML frontmatter）
+│   ├── project-mastery/        └ pm-* × 8（接手开发，含 pm-verify-lite）
 │   └── learn-project/          └ lp-* × 3（学习理解）
 ├── scripts/
-│   └── link-skills.sh          软链 skills/ → ~/.claude/skills/
+│   ├── link-skills.sh          软链 skills/ → ~/.claude/skills/
+│   ├── validate-kb.py          知识库机器校验（CI 可跑，stdlib 无依赖）
+│   └── update_ai_generated_block.py   AI/HUMAN 双区增量更新
+├── schemas/
+│   └── codebase-scan-result.schema.json   scan-result.json 机器契约（三态枚举等）
 ├── docs/
 │   ├── skill-design/           TDD 压力场景（<skill>/pressure-scenario.md）+ README（通用化纪律）
 │   └── superpowers/
