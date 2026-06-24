@@ -57,6 +57,7 @@
 ### 1. 环境要求
 
 - **Claude Code**（CLI / 桌面 / IDE 插件均可）—— 承载 skill 发现与执行
+- **Codex**（可选）—— 同样原生认 SKILL.md 格式，本工具集可同一份源码两边复用
 - **bash** —— `link-skills.sh`
 - **Python 3.6+**（可选）—— 仅 `scripts/validate-kb.py` 与 `update_ai_generated_block.py` 需要，纯 stdlib、无第三方依赖
 
@@ -64,27 +65,34 @@
 
 ```bash
 git clone <repo> ~/sunlc_skills
-bash ~/sunlc_skills/scripts/link-skills.sh
+bash ~/sunlc_skills/scripts/link-skills.sh          # Claude Code（默认，~/.claude/skills）
+bash ~/sunlc_skills/scripts/link-skills.sh codex    # Codex（~/.codex/skills）
+bash ~/sunlc_skills/scripts/link-skills.sh all      # 两者都链
 ```
 
-脚本把每个 `skills/<name>` 软链到 `~/.claude/skills/<name>`，使其在所有项目里全局可发现。脚本用 `$(dirname "${BASH_SOURCE[0]}")/..` 相对定位源目录，**在任意目录调用均可**。校验链接是否生效：
+脚本把每个 `skills/<name>` 软链到目标 agent 的 skills 目录，使其全局可发现。**同一份 skill 源码（SKILL.md + YAML frontmatter）在 Claude Code 与 Codex 两边格式通用**——Codex 的 skill 目录就是 `~/.codex/skills/<name>/`，结构与 Claude Code 对称，一次开发、两边复用，无需维护两套。脚本用 `$(dirname "${BASH_SOURCE[0]}")/..` 相对定位源目录，**在任意目录调用均可**；也支持 `DEST_DIR=/custom/path bash scripts/link-skills.sh codex` 覆盖默认目录，或 `bash scripts/link-skills.sh /custom/dir` 直接装到任意路径。
+
+校验链接是否生效：
 
 ```bash
-ls -l ~/.claude/skills/ | grep -E 'pm-scan|learn-project'
+ls -l ~/.claude/skills/ | grep -E 'pm-scan|learn-project'   # Claude Code
+ls -l ~/.codex/skills/  | grep -E 'pm-scan|learn-project'   # Codex
 # 应指向 .../sunlc_skills/skills/ 下对应目录
 ```
 
-> skill 源码更新后**无需重新链接**（软链跟随源码）；新增 skill 目录后重跑一次 `link-skills.sh` 即可补链。
+> skill 源码更新后**无需重新链接**（软链跟随源码）；新增 skill 目录后重跑对应命令即可补链。
+
+> **Codex 并行 dispatch（可选）**：`project-mastery` 波次 2 会并行 dispatch 子 skill（subagent）。Codex 下需在 `~/.codex/config.toml` 开启 `[features] multi_agent = true` 才能用 `spawn_agent` 并行；不开也能跑，只是顺序执行（功能不受影响）。skill 内用的是 Claude Code 的 `Agent` 工具名，Codex 会按其工具映射（`Agent` → `spawn_agent`）执行。
 
 ### 3. 在目标项目里触发
 
-进入**目标项目根目录**启动 Claude Code，两种等价方式：
+进入**目标项目根目录**启动 Claude Code（或 Codex），两种等价方式：
 
 - **自然语言**（推荐）—— skill 的 `description` 字段决定何时自动选中：
   - 「接手这个项目，帮我建立项目知识库」→ 自动选中 `project-mastery`
   - 「我想读懂这个项目，生成学习文档」→ 自动选中 `learn-project`
   - 也可直接给出项目根：「学习 `/abs/path/to/project`」
-- **显式 slash**：`/project-mastery`、`/learn-project`（直接点名叫起）
+- **显式 slash**：`/project-mastery`、`/learn-project`（直接点名叫起；Codex 无 `/skill` slash，用自然语言即可）
 
 ### 4. 典型流程
 
@@ -166,7 +174,7 @@ sunlc_skills/
 │   ├── project-mastery/        └ pm-* × 8（接手开发，含 pm-verify-lite）
 │   └── learn-project/          └ lp-* × 3（学习理解）
 ├── scripts/
-│   ├── link-skills.sh          软链 skills/ → ~/.claude/skills/
+│   ├── link-skills.sh          软链到 ~/.claude/skills/ 或 ~/.codex/skills/（参数 claude/codex/all）
 │   ├── validate-kb.py          知识库机器校验（CI 可跑，stdlib 无依赖）
 │   └── update_ai_generated_block.py   AI/HUMAN 双区增量更新
 ├── schemas/
