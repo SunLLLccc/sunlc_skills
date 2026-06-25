@@ -17,12 +17,12 @@ lp-prompt-gen 是 learn-project 管线的**第 3 步前半**提示词生成 skil
 
 - `PROJECT_ROOT`：目标项目的根目录绝对路径
 - `{PROJECT_ROOT}/docs/learning-docs/features/01-001-功能清单.md`：功能清单（读取其中 `- [x]` 已选中的功能及其证据字段）
-- 该功能的**序号**（3 位，如 `001`）：由 learn-project 按选中顺序分配、记录在 `_meta/progress.json` 的 `features[].seq`，用于本步文件命名。
+- 该功能的**章节号 + 节号**（如 `01` 章 `001` 节）：由 learn-project 在第 2 步确认分章后、记录在 `_meta/progress.json` 的 `features[].chapter` + `features[].section`，用于本步文件命名 `_meta/prompts/{章}-{节}-{功能名}.md`。
 - `{PROJECT_ROOT}/docs/project-knowledge/01-001-项目概览.md`、`02-001-技术栈与架构.md`：项目背景（提示词里可引用作为读者的背景读物）
 
 ## 产出
 
-- `{PROJECT_ROOT}/docs/learning-docs/features/prompts/03-{序号}-{功能名}.md` — 每个选中功能一份教学提示词（`{序号}` 取自 progress.json 的 features[].seq）
+- `{PROJECT_ROOT}/docs/learning-docs/_meta/prompts/{章}-{节}-{功能名}.md` — 每个选中功能一份教学提示词（`{章}-{节}` 取自 progress.json 的 features[].chapter/section；提示词下沉 _meta，与读者产物分离）
 
 ## 核心原则（五要素齐全）
 
@@ -75,7 +75,7 @@ lp-prompt-gen 是 learn-project 管线的**第 3 步前半**提示词生成 skil
 1. **读证据**：从 01-001-功能清单.md 取该功能的证据字段；必要时补充深挖（打开证据文件确认核心方法/类）。
 2. **定学习目标**：基于"该功能最值得理解的点"拟定 3-6 个目标问题。
 3. **套五要素模板**：填入证据/目标/6 节结构/受众/撰写要求。
-4. **写入** `features/prompts/03-{序号}-{功能名}.md`。
+4. **写入** `_meta/prompts/{章}-{节}-{功能名}.md`。
 5. **自检**：五要素齐全？证据路径真实？目标可检验？
 
 ## 边界处理
@@ -86,13 +86,13 @@ lp-prompt-gen 是 learn-project 管线的**第 3 步前半**提示词生成 skil
 
 ## 产出格式
 
-### features/prompts/03-{序号}-{功能名}.md 模板
+### _meta/prompts/{章}-{节}-{功能名}.md 模板
 
 > 产出格式见 `templates/prompt.md`（执行时读取该模板填充，勿自行发明结构）。
 
 ## 输入输出预算（小模型纪律）
 
-- **单步单产物**：本次只产一个功能的 `features/prompts/03-{序号}-{功能名}.md`（一份提示词），逐功能串行/并行均可，但每次只产一份。
+- **单步单产物**：本次只产一个功能的 `_meta/prompts/{章}-{节}-{功能名}.md`（一份提示词），逐功能串行/并行均可，但每次只产一份。
 - **读预算**：读 01-001-功能清单.md 该功能的证据字段 + 01/02 背景；按需深挖证据文件确认核心方法/类（≤6 个，单文件 ≤500 行）；证据路径用 ls/grep 实地验证真实存在。
 - **写预算**：单份提示词默认 ≤3000 字；五要素齐全（必读证据/学习目标/6 节结构/受众/撰写要求）；必读证据至少 1 条、复杂功能 3-6 条。
 - **证据先行**：提示词列的必读证据路径必须真实可打开（执行时验证），不臆造路径。
@@ -105,5 +105,5 @@ lp-prompt-gen 是 learn-project 管线的**第 3 步前半**提示词生成 skil
 2. [ ] 拟定 3-6 个具体、可检验的学习目标
 3. [ ] 验证必读证据路径真实存在（ls/grep）
 4. [ ] 按五要素模板填入（证据/目标/6 节结构/受众/撰写要求）
-5. [ ] 写入 `features/prompts/03-{序号}-{功能名}.md`
+5. [ ] 写入 `_meta/prompts/{章}-{节}-{功能名}.md`
 6. [ ] 自检：五要素齐全？证据真实？目标可检验？可复用重跑？
