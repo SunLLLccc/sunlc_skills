@@ -1,6 +1,6 @@
-# sunlc_skills — 通用 Claude Code Skills 工具集
+# sunlc_skills — 个人Skills工作集
 
-一套**通用的、可复用的** Claude Code skills 工具集，面向"已有项目"的两类核心场景：**接手开发**与**学习理解**。所有 skill 源码 100% 通用（零项目特定内容），适用于任意技术栈的任意已有项目。
+一套**个人维护**的 Claude Code skills 工作集，面向"已有项目"的两类核心场景：**接手开发**与**学习理解**。所有 skill 源码 100% 通用（零项目特定内容），适用于任意技术栈的任意已有项目。
 
 > skills = 方法论（单一事实来源）；执行由主会话或分发的 subagent 承担。
 
